@@ -20,6 +20,8 @@
         "subjects" : []
     }
 
+    let threshold = 0.8;
+
 
     // console.log(user)
     if (user === null){
@@ -56,11 +58,17 @@
         status_text = "Your attendence is all Good!"
     }
 
+    const calculateMakeup = (current, total) => {
+        let d = 0;
+        while ((current+d)/(total+d) < threshold){
+            d += 1;
+        }
+        return d;
+    }
+
 
 </script>
 
-
-<!-- <p id="hello-x">Hello, dumbass</p> -->
 <div id="analyse-div-main">
     {#if currentSubData["subjects"].length == 0}
         <div id="no-sub-div">
@@ -81,7 +89,7 @@
                     <td>{subject.current}</td>
                     <td>{subject.total}</td>
                     <td>{Math.round(subject.current/subject.total*100)}%</td>
-                    <td>{Math.round(subject.current/subject.total*100) < 80? Math.round(0.8*subject.total-subject.current) : 0}</td>
+                    <td>{subject.current/subject.total < threshold? calculateMakeup(subject.current, subject.total) : 0}</td>
                 </tr>
             {/each}
         </table>
