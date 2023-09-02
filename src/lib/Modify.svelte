@@ -47,7 +47,7 @@
         // }
     })
     .catch((error)=>{
-        console.log(error)
+        console.log(error, user.uid)
     })
 
 

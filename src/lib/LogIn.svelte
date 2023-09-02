@@ -159,7 +159,7 @@ input {
     /* background-color: white; */
     width: 27rem;
     height: 27rem;
-    margin-top: 10vh;
+    /* margin-top: 10vh; */
     border-radius: 5px;
     /* opacity: 0.27; */
     /* position: absolute; */
