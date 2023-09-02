@@ -1,8 +1,16 @@
 <script lang="ts">
 	export let text:string = 'Home';
+	export let to:string = '/'
+
+	import {useNavigate} from 'svelte-navigator';
+
+	const navigate = useNavigate();
+
 </script>
 
-<p>{text}</p>
+<p on:click={()=>{navigate(to)}}
+	on:keydown={()=>{navigate(to)}}
+	>{text}</p>
 
 <style>
 	p {
