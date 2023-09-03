@@ -56,7 +56,7 @@
         <div id="content-div">
             <p id="heading">Create an Account</p>
             <div id="form-div">
-                <input type="email" placeholder="Email" id="email-inp" bind:value={email}/>
+                <input type="email" placeholder="Username/Email" id="email-inp" bind:value={email}/>
                 <input type="password" placeholder="Password" id="pass-inp" bind:value={password} />
                 <p style={errmsg===""?"opacity:0":"opacity:1"} id="err-ind">{errmsg}</p>
                 <input 
