@@ -1,6 +1,6 @@
 <script>
     // import auth from "../App.svelte"
-    import {getAuth, signInWithEmailAndPassword } from "firebase/auth";
+    import {getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
     import { useNavigate } from "svelte-navigator";
 
 
@@ -9,6 +9,16 @@
     let errmsg = ""
 
     const auth = getAuth();
+    const navigate = useNavigate();
+    onAuthStateChanged(auth, (user)=>{
+        if (user === null){
+
+        }
+        else{
+            navigate('/')
+        }
+    })
+
 
     const errorMessageMap = {
         "auth/invalid-email" : "Invalid Email",
@@ -19,7 +29,7 @@
         "auth/user-not-found" : "Account does not exist"
     }
 
-    const navigate = useNavigate();
+    
 
     
     const handleLogIn = (event)=>{
@@ -31,7 +41,7 @@
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            navigate("/analyse")
+            navigate("/modify")
             
         })
         .catch((error) => {

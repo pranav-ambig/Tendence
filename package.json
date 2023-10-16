@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "em-start": "cd ../../\"Firebase Workspace/tendence\" && firebase emulators:start"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.0",
@@ -20,7 +21,10 @@
   },
   "dependencies": {
     "firebase": "^10.1.0",
+    "normalize.css": "^8.0.1",
     "svelte-modals": "^1.3.0",
-    "svelte-navigator": "^3.2.2"
+    "svelte-navigator": "^3.2.2",
+    "tesseract.js": "^4.1.2",
+    "wordlist-english": "^1.2.1"
   }
 }

@@ -6,18 +6,22 @@
     let analyseRedirect = "/login"
     let modifyRedirect = "/login"
 
-    onAuthStateChanged(auth, (user)=>{
-        if (user !== null) {
-            console.log(user.uid)
+    let loginText = 'Log In';
 
-            analyseRedirect = "/analyse"
-            modifyRedirect = "/modify"
-            // ...
-        } else {
-            analyseRedirect = "/login"
-            modifyRedirect = "/login"
-        }
-    })
+    setTimeout(()=>{
+        onAuthStateChanged(auth, (user)=>{
+            if (user !== null) {
+                analyseRedirect = "/analyse"
+                modifyRedirect = "/modify"
+                loginText = "Log Out"
+            } else {
+                analyseRedirect = "/login"
+                modifyRedirect = "/login"
+                loginText = "Log In"
+            }
+        })
+
+    }, 500)
 
 
 </script>
@@ -34,7 +38,7 @@
         <!-- <div id="filler"></div> -->
         <div id="rightside">
             <!-- <h1>hi</h1> -->
-            <NavLink text="Log in" to="/login"></NavLink>
+            <NavLink text={loginText} to={(loginText=="Log In")?"/login":'/logout'}></NavLink>
             <NavLink text="Sign Up" to="/signup"></NavLink>
         </div>
     </div>
