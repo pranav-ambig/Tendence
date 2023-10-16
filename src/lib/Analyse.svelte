@@ -58,13 +58,30 @@
         status_text = "Your attendence is all Good!"
     }
 
+    let makeUpMode = true;
+
     const calculateMakeup = (current, total) => {
+        if (current/total > threshold)
+            return 0; 
         let d = 0;
         while ((current+d)/(total+d) < threshold){
             d += 1;
         }
         return d;
     }
+
+    const calculateLeave = (current, total) =>{
+        let d = 0;
+        while (current/(total+d) > threshold) d += 1;
+        return d;
+    }
+
+    // const chooseMakeLeave = (current, total)=>{
+    //     if (makeUpMode)
+    //         return calculateMakeup(current, total)
+    //     else
+    //         return calculateLeave(current, total)
+    // }
 
 
 </script>
@@ -81,15 +98,23 @@
                 <td>Current</td>
                 <td>Total</td>
                 <td>Percentage</td>
-                <td>Makeup</td>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <td 
+                on:click={()=>{makeUpMode = !makeUpMode}}
+                style="cursor:pointer"
+                >{makeUpMode?"Makeup":"Leave"}</td>
             </tr>
             {#each currentSubData["subjects"] as subject}
                 <tr>
                     <td>{subject.name}</td>
                     <td>{subject.current}</td>
                     <td>{subject.total}</td>
-                    <td>{Math.round(subject.current/subject.total*100)}%</td>
-                    <td>{subject.current/subject.total < threshold? calculateMakeup(subject.current, subject.total) : 0}</td>
+                    <td>{Math.round(subject.current*10000/subject.total)/100}%</td>
+                    {#if makeUpMode}
+                        <td>{calculateMakeup(subject.current, subject.total)}</td>
+                    {:else}
+                        <td>{calculateLeave(subject.current, subject.total)}</td>
+                    {/if}
                 </tr>
             {/each}
         </table>

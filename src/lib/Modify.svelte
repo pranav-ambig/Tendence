@@ -1,14 +1,20 @@
 <script lang="ts">
 
     import { setDoc, doc, getFirestore, getDoc } from "firebase/firestore";
-    import { getAuth } from "firebase/auth";
+    import { getAuth, onAuthStateChanged} from "firebase/auth";
+    import Tesseract from 'tesseract.js';
+    import { useNavigate } from "svelte-navigator";
 
     const auth = getAuth();
     const user = auth.currentUser;
     const db = getFirestore();
 
-    //TODO
-    // make second input flash red if its value is smaller than first input
+    const navigate = useNavigate()
+
+    onAuthStateChanged(auth, (user)=>{
+        if (user === null)
+            navigate('/login')
+    })
 
     let addSubModalVisible = false;
     let editMode = false;
@@ -34,21 +40,25 @@
     };
 
     //fetches subjects data from db
-    let docRef = doc(db, "Users", user.uid)
-    getDoc(docRef)
-    .then((docSnap)=>{
-        //@ts-ignore
-        currentSubData = docSnap.data();
-        // if (currentSubData["subjects"] == undefined){
-        //     console.log('afjksfd')
-        // }
-        // else {
-        //     console.log('nope')
-        // }
-    })
-    .catch((error)=>{
-        console.log(error, user.uid)
-    })
+    if (user !== null){
+        let docRef = doc(db, "Users", user.uid)
+        getDoc(docRef)
+        .then((docSnap)=>{
+            //@ts-ignore
+            currentSubData = docSnap.data();
+            // if (currentSubData["subjects"] == undefined){
+            //     console.log('afjksfd')
+            // }
+            // else {
+            //     console.log('nope')
+            // }
+        })
+        .catch((error)=>{
+            console.log(error, user.uid)
+        })
+    }
+    else
+        navigate('/login')
 
 
     const mainDivClickHandler = (event) => {
@@ -77,6 +87,50 @@
         addSubModalVisible = false;
     }
 
+    let testStr:string;
+
+    const ocrHandler = ()=>{
+        let img = document.getElementById("ocr-inp").files[0];
+        // console.log(img)
+        // return;
+        // let img = new Image();
+        // img.src = "../testimg.jpg"
+        console.log('loading')
+        let pattern = /\d+\/\d+/g;
+
+        function getRawString(str) {
+            return JSON.stringify(str, (key, value) => {
+                return value;
+            });
+        }
+
+
+        if (img !== undefined){
+            Tesseract.recognize(
+                img,
+                'eng',
+                {logger:m => console.log()}
+                ).then(({data : {text}})=>{
+                    testStr = text;
+                    // console.log(getRawString(text))
+                    let attenData = text.match(pattern);
+                    // attenData = [attenData[0]];
+                    attenData.forEach((sub, i)=>{
+                        let splitsub = sub.split('/')
+                        let curr = Number(splitsub[0])
+                        let total = Number(splitsub[1])
+                        addSubObj.name = "Sub "+ (i+1);
+                        addSubObj.current = curr;
+                        addSubObj.total = total;
+                        handleSave()
+                        
+                    })
+                    addSubModalVisible = false;
+
+                })
+        }
+    }
+
     const handleSave = () => {
         if (addSubObj.current > addSubObj.total){
             addSubObj.current = addSubObj.total
@@ -90,7 +144,6 @@
             editMode = false
         }
 
-
         currentSubData = temp;
         setDoc(doc(db, "Users", user.uid), currentSubData
         ).then(()=>{
@@ -98,13 +151,22 @@
         }).catch((error)=>{
             console.log(error)
         })
-        initAddSubObj()
+        // initAddSubObj()
         addSubClickHandler();
     }
 
-    const handleOutClick = () => {
-        if (addSubModalVisible)
-            addSubModalVisible = false;
+    const truncate = (s: String)=>{
+        let truncatedString = s.substring(0, 15)
+        if (s.length > 15)
+            truncatedString += "..."
+        return truncatedString
+    }
+
+    const closeAddSub = (event)=>{
+        let modalContent = document.getElementById('modal-content')
+        if (!modalContent.contains(event.target)){
+            addSubClickHandler()
+        }
     }
 
 </script>
@@ -124,7 +186,7 @@
         {#if currentSubData !== undefined}
             {#each currentSubData["subjects"] as subject}
                     <tr>
-                        <td>{subject.name}</td>
+                        <td>{truncate(subject.name)}</td>
                         <td>{subject.current}</td>
                         <td>{subject.total}</td>
                         <td class="action" on:click={()=>editSubClickHandler(subject)}>Edit</td>
@@ -135,9 +197,23 @@
         <tr>
             <td colspan="3" id="add-sub" on:click={addSubClickHandler}>Add subject</td>
         </tr>
+        <tr>
+            <td colspan="3" id="add-sub" on:click={ocrHandler}>
+                <input 
+                    type="file" 
+                    id="ocr-inp" 
+                    style="display: none;"
+                    accept="image/png, image/jpeg, image/jpg"
+                    on:change={ocrHandler}
+                    />
+                <p on:click={()=>{document.getElementById("ocr-inp").click()}} 
+                    id="upload-btn"
+                    >Upload</p>
+            </td>
+        </tr>
     </table>
     {#if addSubModalVisible}
-        <div id="add-sub-modal">
+        <div id="add-sub-modal" on:click={closeAddSub}>
             <div id="modal-content">
                     <p id="add-sub-title">Add Subject</p>
                     <input type="text" placeholder="Subject Name" bind:value={addSubObj.name}/>
@@ -169,6 +245,10 @@
 </div>
 
 <style>
+
+#upload-btn {
+    margin: 0;
+}
 
 .action {
     max-width: 3rem;
@@ -249,7 +329,10 @@
     /* top: 0;
     left: 0; */
     z-index: 9;
-    /* margin-top: 3rem; */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 #add-sub {

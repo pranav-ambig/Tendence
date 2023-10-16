@@ -16,6 +16,7 @@
   import { initializeApp } from "firebase/app";
   import { getAuth, connectAuthEmulator } from "firebase/auth";
   import { getFirestore, connectFirestoreEmulator  } from "firebase/firestore";
+    import LogOut from './lib/LogOut.svelte';
   // import { getAnalytics } from "firebase/analytics";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
@@ -36,8 +37,8 @@
   const app = initializeApp(firebaseConfig);
   export const auth = getAuth(app);
   export const db = getFirestore(app);
-  // connectFirestoreEmulator(db, '127.0.0.1', 8081);
-  // connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, '127.0.0.1', 8081);
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
   // const analytics = getAnalytics(app);
 
 
@@ -83,6 +84,10 @@
 
     <Route path="signup">
       <SignUp></SignUp>
+    </Route>
+
+    <Route path="logout">
+      <LogOut></LogOut>
     </Route>
   
   </div>
